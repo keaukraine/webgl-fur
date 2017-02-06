@@ -37,9 +37,6 @@ define([
                 this.lastTime = 0; // used for animating camera
                 this.furTimer = 0; // camera rotation angle
 
-                this.coinModelType = '1'; // coin mesh: 1, 2, 3
-                this.coinNormalType = '1'; // coin normal texture: 1, 2, 3
-                this.coinSphericalMap = 'gold2'; // coin spherical map texture: 'bronze', 'gold2', 'silver'
                 this.tableTextureType = 'marble'; // floor texture: 'granite', 'marble', 'wood3'
 
                 this.ITEMS_TO_LOAD = 3; // total number of OpenGL buffers+textures to load
@@ -53,11 +50,7 @@ define([
 
                 this.FUR_ANIMATION_SPEED = 1500.0;
 
-                // this.FUR_THIKNESS = 0.15;
-                // this.FUR_LAYERS = 20;
-                // this.FUR_WAVE_SCALE = 0.5;
-
-                this.currentPreset = 0;
+                this.currentPreset = 2;
             }
 
             /**

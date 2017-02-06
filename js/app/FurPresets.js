@@ -22,6 +22,15 @@ define(function() {
         'alphaTexture': 'fur-alpha.png',
         'startColor': [0.6, 0.6, 0.6, 1.0],
         'endColor': [1.0, 1.0, 1.0, 0.0]
+    }, {
+        'name': 'Timber Wolf',
+        'layers': 20,
+        'thickness': 0.15,
+        'waveScale': 0.3,
+        'diffuseTexture': 'fur-wolf.png',
+        'alphaTexture': 'fur-alpha.png',
+        'startColor': [0.1, 0.1, 0.1, 1.0],
+        'endColor': [1.0, 1.0, 1.0, 0.0]
     }];
 
     return FurPresets;
