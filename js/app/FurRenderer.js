@@ -10,7 +10,8 @@ define([
         'framework/utils/MatrixUtils',
         'framework/FullModel',
         'framework/UncompressedTextureLoader',
-        'framework/CompressedTextureLoader'
+        'framework/CompressedTextureLoader',
+        'FurPresets'
     ],
     function(
         BaseRenderer,
@@ -22,7 +23,8 @@ define([
         MatrixUtils,
         FullModel,
         UncompressedTextureLoader,
-        CompressedTextureLoader) {
+        CompressedTextureLoader,
+        FurPresets) {
 
         class FurRenderer extends BaseRenderer {
             constructor() {
@@ -51,11 +53,11 @@ define([
 
                 this.FUR_ANIMATION_SPEED = 1500.0;
 
-                this.FUR_THIKNESS = 0.15;
-                this.FUR_LAYERS = 20;
-                this.FUR_WAVE_SCALE = 0.5;
-                // this.FUR_THIKNESS = 5.0;
-                // this.FUR_LAYERS = 2;
+                // this.FUR_THIKNESS = 0.15;
+                // this.FUR_LAYERS = 20;
+                // this.FUR_WAVE_SCALE = 0.5;
+
+                this.currentPreset = 0;
             }
 
             /**
@@ -119,8 +121,25 @@ define([
                 this.modelCube = new FullModel();
                 this.modelCube.load('data/models/box10_rounded', boundUpdateCallback);
 
-                this.textureFurDiffuse = UncompressedTextureLoader.load('data/textures/fur-leo.png', boundUpdateCallback);
-                this.textureFurAlpha = UncompressedTextureLoader.load('data/textures/fur-alpha.png', boundUpdateCallback);
+                this.loadFurData(boundUpdateCallback);
+            }
+
+            getPresetParameter(param) {
+                return FurPresets.presets[this.currentPreset][param];
+            }
+
+            loadFurData(callback) {
+                this.textureFurDiffuse && gl.deleteTexture(this.textureFurDiffuse);
+                this.textureFurAlpha && gl.deleteTexture(this.textureFurAlpha);
+
+                this.textureFurDiffuse = UncompressedTextureLoader.load('data/textures/' + this.getPresetParameter('diffuseTexture'), callback);
+                this.textureFurAlpha = UncompressedTextureLoader.load('data/textures/' + this.getPresetParameter('alphaTexture'), callback);
+
+                this.furThickness = this.getPresetParameter('thickness');
+                this.furLayers = this.getPresetParameter('layers');
+                this.furStartColor = this.getPresetParameter('startColor');
+                this.furEndColor = this.getPresetParameter('endColor');
+                this.furWaveScale = this.getPresetParameter('waveScale');
             }
 
             /**
@@ -219,7 +238,7 @@ define([
             drawCubeDiffuse() {
                 this.shaderDiffuseColored.use();
                 this.setTexture2D(0, this.textureFurDiffuse, this.shaderDiffuseColored.sTexture);
-                gl.uniform4f(this.shaderDiffuseColored.color, 0.6, 0.6, 0.6, 1.0);
+                gl.uniform4f(this.shaderDiffuseColored.color, this.furStartColor[0], this.furStartColor[1], this.furStartColor[2], this.furStartColor[3]);
                 this.drawDiffuseNormalStrideVBOTranslatedRotatedScaled(this.shaderDiffuseColored, this.modelCube, 0, -25, 0, 0, 0, 0, 1, 1, 1); // FIXME position
             }
 
@@ -259,13 +278,13 @@ define([
                 this.calculateMVPMatrix(tx, ty, tz, rx, ry, rz, sx, sy, sz);
 
                 gl.uniformMatrix4fv(shader.view_proj_matrix, false, this.mMVPMatrix);
-                gl.uniform1f(shader.layerThickness, this.FUR_THIKNESS);
-                gl.uniform1f(shader.layersCount, this.FUR_LAYERS);
-                gl.uniform4f(shader.colorStart, 0.6, 0.6, 0.6, 1.0);
-                gl.uniform4f(shader.colorEnd, 1.0, 1.0, 1.0, 0.0);
+                gl.uniform1f(shader.layerThickness, this.furThickness);
+                gl.uniform1f(shader.layersCount, this.furLayers);
+                gl.uniform4f(shader.colorStart, this.furStartColor[0], this.furStartColor[1], this.furStartColor[2], this.furStartColor[3]);
+                gl.uniform4f(shader.colorEnd, this.furEndColor[0], this.furEndColor[1], this.furEndColor[2], this.furEndColor[3]);
                 gl.uniform1f(shader.time, this.furTimer);
-                gl.uniform1f(shader.waveScale, this.FUR_WAVE_SCALE);
-                gl.drawElementsInstanced(gl.TRIANGLES, model.getNumIndices() * 3, gl.UNSIGNED_SHORT, 0, this.FUR_LAYERS);
+                gl.uniform1f(shader.waveScale, this.furWaveScale);
+                gl.drawElementsInstanced(gl.TRIANGLES, model.getNumIndices() * 3, gl.UNSIGNED_SHORT, 0, this.furLayers);
             }
 
             drawLMVBOTranslatedRotatedScaled(shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
