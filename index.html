@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Bitcoin 3D WebGL Demo">
+    <meta name="author" content="Oleksandr Popov">
+    <link rel="icon" href="favicon.ico">
+    <link rel="icon" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Fur WebGL 2.0 demo</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="styles/css/theme.min.css">
+    <link rel="stylesheet" href="styles/css/site.css">
+    <script data-main="js/app" src="js/lib/require.js"></script>
+</head>
+
+<body>
+    <canvas id="canvasGL" class="canvasGL" style="display:none;">
+        Your browser doesn't appear to support the
+        <code>&lt;canvas&gt;</code> element.
+    </canvas>
+    <div class="controls">
+        <div class="container-fluid">
+            <div class="row" id="row-progress">
+                <div class="col col-sm-8 col-sm-push-2">
+                    <h3 class="text-center">Loading...</h3>
+                    <div class="progress">
+                        <div id="progressLoading" class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="45" aria-valuemin="0" aria-valuemax="100" style="width: 0;">
+                            0%
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row text-center">
+                <div class="col col-sm-8 col-sm-push-2">
+                    <div class="alert alert-danger" role="alert" id="alertError" style="display:none;">
+                        Cannot initialize WebGL context.
+                    </div>
+                </div>
+            </div>
+            <div class="row" id="row-settings" style="display: none;">
+                <div class="col col-lg-5 col-md-8 col-sm-8">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label text-left">Amount</label>
+                            <div class="col-sm-10">
+                                <div class="btn-group btn-group-justified" role="group" aria-label="Coin Model" id="group-model">
+                                    <a href="javascript:void(0);" class="btn btn-default active" role="button" data-option="model" data-value="1">Pile</a>
+                                    <a href="javascript:void(0);" class="btn btn-default" role="button" data-option="model" data-value="2">Stack</a>
+                                    <a href="javascript:void(0);" class="btn btn-default" role="button" data-option="model" data-value="3">Two Coins</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Coin Face</label>
+                            <div class="col-sm-10">
+                                <div class="btn-group btn-group-justified" role="group" aria-label="Coin Model" id="group-normal">
+                                    <a href="javascript:void(0);" class="btn btn-default active" role="button" data-option="normal" data-value="1">Binary Code</a>
+                                    <a href="javascript:void(0);" class="btn btn-default" role="button" data-option="normal" data-value="2">Vires In Numeris</a>
+                                    <a href="javascript:void(0);" class="btn btn-default" role="button" data-option="normal" data-value="3">1 Bitcoin</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Material</label>
+                            <div class="col-sm-10">
+                                <div class="btn-group btn-group-justified" role="group" aria-label="Coin Model" id="group-spherical-map">
+                                    <a href="javascript:void(0);" class="btn btn-default active" role="button" data-option="spherical" data-value="gold2">Gold</a>
+                                    <a href="javascript:void(0);" class="btn btn-default" role="button" data-option="spherical" data-value="silver">Silver</a>
+                                    <a href="javascript:void(0);" class="btn btn-default" role="button" data-option="spherical" data-value="bronze">Bronze</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">Table</label>
+                            <div class="col-sm-10">
+                                <div class="btn-group btn-group-justified" role="group" aria-label="Coin Model" id="group-table">
+                                    <a href="javascript:void(0);" class="btn btn-default active" role="button" data-option="table" data-value="marble">Marble</a>
+                                    <a href="javascript:void(0);" class="btn btn-default" role="button" data-option="table" data-value="granite">Granite</a>
+                                    <a href="javascript:void(0);" class="btn btn-default" role="button" data-option="table" data-value="wood3">Wood</a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="well well-sm">
+                        Source code is available at GitHub: <a href="https://github.com/keaukraine/webgl-bitcoin" target="_blank">https://github.com/keaukraine/webgl-bitcoin</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="javascript:void(0)" id="toggleFullscreen" class="control-icon control-fs" style="display:none;">
+        <i class="material-icons md-36 icon-enter-fs" title="Fullscreen Mode">fullscreen</i>
+        <i class="material-icons md-36 icon-exit-fs" title="Exit Fullscreen">fullscreen_exit</i>
+    </a>
+    <a href="javascript:void(0)" id="toggleSettings" class="control-icon control-settings" style="display:none;">
+        <i class="material-icons md-36 icon-show-settings" title="Settings">settings</i>
+        <i class="material-icons md-36 icon-hide-settings" title="Close">close</i>
+    </a>
+</body>
+
+</html>
