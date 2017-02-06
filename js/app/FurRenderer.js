@@ -3,11 +3,8 @@
 define([
         'framework/BaseRenderer',
         'jquery',
-        'SphericalMapLMShader',
         'LMTableShader',
-        'TestES30Shader',
-        'TestES30InstancedShader',
-        'TestES30Instanced2Shader',
+        'FurShader',
         'DiffuseShader',
         'DiffuseColoredShader',
         'framework/utils/MatrixUtils',
@@ -18,11 +15,8 @@ define([
     function(
         BaseRenderer,
         $,
-        SphericalMapLMShader,
         LMTableShader,
-        TestES30Shader,
-        TestES30InstancedShader,
-        TestES30Instanced2Shader,
+        FurShader,
         DiffuseShader,
         DiffuseColoredShader,
         MatrixUtils,
@@ -46,7 +40,7 @@ define([
                 this.coinSphericalMap = 'gold2'; // coin spherical map texture: 'bronze', 'gold2', 'silver'
                 this.tableTextureType = 'marble'; // floor texture: 'granite', 'marble', 'wood3'
 
-                this.ITEMS_TO_LOAD = 10; // total number of OpenGL buffers+textures to load
+                this.ITEMS_TO_LOAD = 3; // total number of OpenGL buffers+textures to load
                 this.FLOAT_SIZE_BYTES = 4; // float size, used to calculate stride sizes
                 this.TRIANGLE_VERTICES_DATA_STRIDE_BYTES = 5 * this.FLOAT_SIZE_BYTES;
                 this.TRIANGLE_VERTICES_DATA_POS_OFFSET = 0;
@@ -86,11 +80,10 @@ define([
             }
 
             initShaders() {
-                this.shaderSphericalMapLM = new SphericalMapLMShader();
                 this.shaderLMTable = new LMTableShader();
-                this.shaderTest30 = new TestES30Shader();
-                this.shaderTest30I = new TestES30InstancedShader;
-                this.shaderTest30I2 = new TestES30Instanced2Shader;
+                // this.shaderTest30 = new TestES30Shader();
+                // this.shaderTest30I = new TestES30InstancedShader;
+                this.shaderFur = new FurShader();
                 this.shaderDiffuse = new DiffuseShader();
                 this.shaderDiffuseColored = new DiffuseColoredShader();
             }
@@ -123,16 +116,6 @@ define([
             loadData() {
                 var boundUpdateCallback = this.updateLoadedObjectsCount.bind(this);
 
-                this.textureCoinsNormalMap = UncompressedTextureLoader.load('data/textures/faces/coin' + this.coinNormalType + '_normal.png', boundUpdateCallback);
-                this.textureSphericalMap = UncompressedTextureLoader.load('data/textures/spheres/sphere_' + this.coinSphericalMap + '.png', boundUpdateCallback);
-                this.textureCoinsLightMap = this.loadETC1WithFallback('data/textures/coin' + this.coinModelType + '_lm');
-                this.textureTable = this.loadETC1WithFallback('data/textures/table/' + this.tableTextureType);
-                this.textureTableLM = this.loadETC1WithFallback('data/textures/table/table_lm_coin' + this.coinModelType);
-
-                this.modelTable = new FullModel();
-                this.modelTable.load('data/models/table', boundUpdateCallback);
-                this.modelCoins = new FullModel();
-                this.modelCoins.load('data/models/coins' + this.coinModelType, boundUpdateCallback);
                 this.modelCube = new FullModel();
                 this.modelCube.load('data/models/box10_rounded', boundUpdateCallback);
 
@@ -212,7 +195,6 @@ define([
 
                 // this.drawTable();
 
-                // this.drawCoins();
                 this.drawCubeDiffuse();
 
                 gl.disable(gl.CULL_FACE);
@@ -234,47 +216,18 @@ define([
                 this.drawLMVBOTranslatedRotatedScaled(this.shaderLMTable, this.modelTable, 0, 0, 0, 0, 0, 0, 1, 1, 1);
             }
 
-            drawCoins() {
-                this.shaderSphericalMapLM.use();
-                this.setTexture2D(0, this.textureCoinsNormalMap, this.shaderSphericalMapLM.normalMap);
-                this.setTexture2D(1, this.textureSphericalMap, this.shaderSphericalMapLM.sphereMap);
-                this.setTexture2D(2, this.textureCoinsLightMap, this.shaderSphericalMapLM.aoMap);
-                this.drawCoinVBOTranslatedRotatedScaled(this.shaderSphericalMapLM, this.modelCoins, 0, 0, 0, 0, 0, 0, 1, 1, 1);
-            }
-
-            drawCoinsDiffuse() {
-                this.shaderDiffuse.use();
-                this.setTexture2D(0, this.textureFurDiffuse, this.shaderDiffuse.sTexture);
-                this.drawDiffuseNormalStrideVBOTranslatedRotatedScaled(this.shaderDiffuse, this.modelCoins, 0, 0, 0, 0, 0, 0, 1, 1, 1);
-            }
-
             drawCubeDiffuse() {
                 this.shaderDiffuseColored.use();
                 this.setTexture2D(0, this.textureFurDiffuse, this.shaderDiffuseColored.sTexture);
-                gl.uniform4f(this.shaderDiffuseColored.color, 0.3, 0.3, 0.3, 1.0);
+                gl.uniform4f(this.shaderDiffuseColored.color, 0.6, 0.6, 0.6, 1.0);
                 this.drawDiffuseNormalStrideVBOTranslatedRotatedScaled(this.shaderDiffuseColored, this.modelCube, 0, -25, 0, 0, 0, 0, 1, 1, 1); // FIXME position
             }
 
             drawFur() {
-                this.shaderTest30I2.use();
-                this.setTexture2D(0, this.textureFurDiffuse, this.shaderTest30I2.diffuseMap);
-                this.setTexture2D(1, this.textureFurAlpha, this.shaderTest30I2.alphaMap);
-                this.drawFurVBOTranslatedRotatedScaledInstanced(this.shaderTest30I2, this.modelCube, 0, -25, 0, 0, 0, 0, 1, 1, 1); // FIXME position
-            }
-
-            drawDiffuseNormalStrideVBOTranslatedRotatedScaled2(shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
-                model.bindBuffers();
-
-                gl.enableVertexAttribArray(shader.rm_Vertex);
-                gl.enableVertexAttribArray(shader.rm_TexCoord0);
-
-                gl.vertexAttribPointer(shader.rm_Vertex, 3, gl.FLOAT, false, 4 * (3 + 2 + 2 + 3), 0);
-                gl.vertexAttribPointer(shader.rm_TexCoord0, 2, gl.FLOAT, false, 4 * (3 + 2 + 2 + 3), 4 * (3));
-
-                this.calculateMVPMatrix(tx, ty, tz, rx, ry, rz, sx, sy, sz);
-
-                gl.uniformMatrix4fv(shader.view_proj_matrix, false, this.mMVPMatrix);
-                gl.drawElements(gl.TRIANGLES, model.getNumIndices() * 3 * 0.46, gl.UNSIGNED_SHORT, 0); // FIXME primitives count
+                this.shaderFur.use();
+                this.setTexture2D(0, this.textureFurDiffuse, this.shaderFur.diffuseMap);
+                this.setTexture2D(1, this.textureFurAlpha, this.shaderFur.alphaMap);
+                this.drawFurVBOTranslatedRotatedScaledInstanced(this.shaderFur, this.modelCube, 0, -25, 0, 0, 0, 0, 1, 1, 1); // FIXME position
             }
 
             drawDiffuseNormalStrideVBOTranslatedRotatedScaled(shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
@@ -292,53 +245,6 @@ define([
                 gl.drawElements(gl.TRIANGLES, model.getNumIndices() * 3, gl.UNSIGNED_SHORT, 0);
             }
 
-            drawCoinVBOTranslatedRotatedScaled(shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
-                model.bindBuffers();
-
-                gl.enableVertexAttribArray(shader.rm_Vertex);
-                gl.enableVertexAttribArray(shader.rm_TexCoord0);
-                gl.enableVertexAttribArray(shader.rm_TexCoord1);
-                gl.enableVertexAttribArray(shader.rm_Normal);
-
-                gl.vertexAttribPointer(shader.rm_Vertex, 3, gl.FLOAT, false, 4 * (3 + 2 + 2 + 3), 0);
-                gl.vertexAttribPointer(shader.rm_TexCoord0, 2, gl.FLOAT, false, 4 * (3 + 2 + 2 + 3), 4 * (3));
-                gl.vertexAttribPointer(shader.rm_TexCoord1, 2, gl.FLOAT, false, 4 * (3 + 2 + 2 + 3), 4 * (3 + 2));
-                gl.vertexAttribPointer(shader.rm_Normal, 3, gl.FLOAT, false, 4 * (3 + 2 + 2 + 3), 4 * (3 + 2 + 2));
-
-                this.calculateMVPMatrix(tx, ty, tz, rx, ry, rz, sx, sy, sz);
-
-                gl.uniformMatrix4fv(shader.view_matrix, false, this.mVMatrix);
-                gl.uniformMatrix4fv(shader.view_proj_matrix, false, this.mMVPMatrix);
-                gl.drawElements(gl.TRIANGLES, model.getNumIndices() * 3, gl.UNSIGNED_SHORT, 0);
-            }
-
-            drawFurVBOTranslatedRotatedScaledInstancedOld(shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
-                model.bindBuffers();
-
-                gl.enableVertexAttribArray(shader.rm_Vertex);
-                gl.enableVertexAttribArray(shader.rm_TexCoord0);
-                // gl.enableVertexAttribArray(shader.rm_TexCoord1);
-                gl.enableVertexAttribArray(shader.rm_Normal);
-
-                gl.vertexAttribPointer(shader.rm_Vertex, 3, gl.FLOAT, false, 4 * (3 + 2 + 2 + 3), 0);
-                gl.vertexAttribPointer(shader.rm_TexCoord0, 2, gl.FLOAT, false, 4 * (3 + 2 + 2 + 3), 4 * (3));
-                // gl.vertexAttribPointer(shader.rm_TexCoord1, 2, gl.FLOAT, false, 4 * (3 + 2 + 2 + 3), 4 * (3 + 2));
-                gl.vertexAttribPointer(shader.rm_Normal, 3, gl.FLOAT, false, 4 * (3 + 2 + 2 + 3), 4 * (3 + 2 + 2));
-
-                this.calculateMVPMatrix(tx, ty, tz, rx, ry, rz, sx, sy, sz);
-
-                // gl.uniformMatrix4fv(shader.view_matrix, false, this.mVMatrix);
-                gl.uniformMatrix4fv(shader.view_proj_matrix, false, this.mMVPMatrix);
-                gl.uniform1f(shader.layerThickness, this.FUR_THIKNESS);
-                gl.uniform1f(shader.layersCount, this.FUR_LAYERS);
-                gl.uniform4f(shader.colorStart, 0.3, 0.3, 0.3, 0.0);
-                gl.uniform4f(shader.colorEnd, 1.0, 1.0, 1.0, 0.0);
-                // gl.uniform1f(shader.coloringStrength, 0.5);
-                gl.drawElementsInstanced(gl.TRIANGLES, model.getNumIndices() * 3, gl.UNSIGNED_SHORT, 0, this.FUR_LAYERS);
-            }
-
-            //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
             drawFurVBOTranslatedRotatedScaledInstanced(shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
                 model.bindBuffers();
 
@@ -355,13 +261,11 @@ define([
                 gl.uniformMatrix4fv(shader.view_proj_matrix, false, this.mMVPMatrix);
                 gl.uniform1f(shader.layerThickness, this.FUR_THIKNESS);
                 gl.uniform1f(shader.layersCount, this.FUR_LAYERS);
-                gl.uniform4f(shader.colorStart, 0.4, 0.4, 0.4, 1.0);
+                gl.uniform4f(shader.colorStart, 0.6, 0.6, 0.6, 1.0);
                 gl.uniform4f(shader.colorEnd, 1.0, 1.0, 1.0, 0.0);
                 gl.uniform1f(shader.time, this.furTimer);
                 gl.uniform1f(shader.waveScale, this.FUR_WAVE_SCALE);
                 gl.drawElementsInstanced(gl.TRIANGLES, model.getNumIndices() * 3, gl.UNSIGNED_SHORT, 0, this.FUR_LAYERS);
-
-                // console.log(this.furTimer);
             }
 
             drawLMVBOTranslatedRotatedScaled(shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {

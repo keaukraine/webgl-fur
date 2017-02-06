@@ -2,7 +2,7 @@
 
 define(['framework/BaseShader'], function(BaseShader) {
 
-    class TestES30Instanced2Shader extends BaseShader {
+    class FurShader extends BaseShader {
         fillCode() {
             this.vertexShaderCode = '#version 300 es\r\n' +
                 'precision highp float;\r\n' +
@@ -82,5 +82,5 @@ define(['framework/BaseShader'], function(BaseShader) {
         }
     }
 
-    return TestES30Instanced2Shader;
+    return FurShader;
 });
