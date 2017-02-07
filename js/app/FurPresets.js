@@ -10,7 +10,7 @@ define(function() {
         'thickness': 0.15,
         'waveScale': 0.5,
         'diffuseTexture': 'fur-leo.png',
-        'alphaTexture': 'fur-alpha.png',
+        'alphaTexture': 'uneven-alpha.png',
         'startColor': [0.6, 0.6, 0.6, 1.0],
         'endColor': [1.0, 1.0, 1.0, 0.0]
     }, {
@@ -19,8 +19,8 @@ define(function() {
         'thickness': 0.15,
         'waveScale': 0.2,
         'diffuseTexture': 'fur-cow.png',
-        'alphaTexture': 'fur-alpha.png',
-        'startColor': [0.6, 0.6, 0.6, 1.0],
+        'alphaTexture': 'uneven-alpha.png',
+        'startColor': [0.7, 0.7, 0.7, 1.0],
         'endColor': [1.0, 1.0, 1.0, 0.0]
     }, {
         'name': 'Timber Wolf',
@@ -28,9 +28,27 @@ define(function() {
         'thickness': 0.15,
         'waveScale': 0.3,
         'diffuseTexture': 'fur-wolf.png',
-        'alphaTexture': 'fur-alpha.png',
-        'startColor': [0.1, 0.1, 0.1, 1.0],
+        'alphaTexture': 'uneven-alpha.png',
+        'startColor': [0.0, 0.0, 0.0, 1.0],
         'endColor': [1.0, 1.0, 1.0, 0.0]
+    }, {
+        'name': 'Chick',
+        'layers': 13,
+        'thickness': 0.13,
+        'waveScale': 0.12,
+        'diffuseTexture': 'fur-chick.png',
+        'alphaTexture': 'even-alpha.png',
+        'startColor': [1.15, 1.15, 1.15, 1.0],
+        'endColor': [0.95, 0.95, 0.95, 0.2]
+    }, {
+        'name': 'Moss',
+        'layers': 7,
+        'thickness': 0.13,
+        'waveScale': 0.0,
+        'diffuseTexture': 'moss.png',
+        'alphaTexture': 'moss-alpha.png',
+        'startColor': [0.2, 0.2, 0.2, 1.0],
+        'endColor': [1.0, 1.0, 1.0, 0.8]
     }];
 
     return FurPresets;

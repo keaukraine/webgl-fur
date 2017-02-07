@@ -50,7 +50,7 @@ define([
 
                 this.FUR_ANIMATION_SPEED = 1500.0;
 
-                this.currentPreset = 2;
+                this.currentPreset = 4;
             }
 
             /**
