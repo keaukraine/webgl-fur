@@ -51,5 +51,29 @@ define(function() {
         'endColor': [1.0, 1.0, 1.0, 0.8]
     }];
 
+    FurPresets._current = 0;
+
+    FurPresets.current = function() {
+        return this.presets[this._current];
+    };
+
+    FurPresets.next = function() {
+        this._current++;
+        if (this._current >= this.presets.length) {
+            this._current = 0;
+        }
+
+        return this.presets[this._current];
+    };
+
+    FurPresets.previous = function() {
+        this._current--;
+        if (this._current < 0) {
+            this._current = this.presets.length - 1;
+        }
+
+        return this.presets[this._current];
+    };
+
     return FurPresets;
 });

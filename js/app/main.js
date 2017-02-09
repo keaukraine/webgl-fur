@@ -10,7 +10,7 @@ define([
         $,
         FullScreenUtils) {
 
-        var furRenderer;
+        var renderer;
         var config = {
             'model': '3', // 1, 2, 3
             'normal': '1', // 1, 2, 3
@@ -26,20 +26,20 @@ define([
 
             window.gl = null;
 
-            if (furRenderer) {
-                furRenderer.resetLoaded();
-                oldYaw = furRenderer.angleYaw;
+            if (renderer) {
+                renderer.resetLoaded();
+                oldYaw = renderer.angleYaw;
             }
 
-            furRenderer = new FurRenderer();
+            renderer = new FurRenderer();
 
-            furRenderer.coinModelType = config['model'];
-            furRenderer.coinNormalType = config['normal'];
-            furRenderer.coinSphericalMap = config['spherical'];
-            furRenderer.tableTextureType = config['table'];
+            renderer.coinModelType = config['model'];
+            renderer.coinNormalType = config['normal'];
+            renderer.coinSphericalMap = config['spherical'];
+            renderer.tableTextureType = config['table'];
 
-            furRenderer.init('canvasGL', true);
-            furRenderer.angleYaw = oldYaw;
+            renderer.init('canvasGL', true);
+            renderer.angleYaw = oldYaw;
         }
 
         $(function() {
@@ -74,6 +74,14 @@ define([
 
                 $this.toggleClass('open');
                 $controls.toggle();
+            });
+
+            $('#nextPreset').on('click', function(e) {
+                renderer.chooseNextPreset();
+            });
+
+            $('#previousPreset').on('click', function(e) {
+                renderer.choosePreviousPreset();
             });
 
             // update scene configuration and re-init renderer

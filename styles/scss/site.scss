@@ -116,6 +116,16 @@ body {
             }
         }
     }
+
+    &.control-previous {
+        left: 40px;
+        top: 50%;
+    }
+
+    &.control-next {
+        right: 40px;
+        top: 50%;
+    }
 }
 
 .material-icons {

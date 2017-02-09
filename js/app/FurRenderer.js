@@ -49,8 +49,6 @@ define([
                 this.YAW_COEFF_NORMAL = 150.0; // camera rotation speed
 
                 this.FUR_ANIMATION_SPEED = 1500.0;
-
-                this.currentPreset = 4;
             }
 
             /**
@@ -76,8 +74,6 @@ define([
 
             initShaders() {
                 this.shaderLMTable = new LMTableShader();
-                // this.shaderTest30 = new TestES30Shader();
-                // this.shaderTest30I = new TestES30InstancedShader;
                 this.shaderFur = new FurShader();
                 this.shaderDiffuse = new DiffuseShader();
                 this.shaderDiffuseColored = new DiffuseColoredShader();
@@ -118,7 +114,7 @@ define([
             }
 
             getPresetParameter(param) {
-                return FurPresets.presets[this.currentPreset][param];
+                return FurPresets.current()[param];
             }
 
             loadFurData(callback) {
@@ -127,6 +123,26 @@ define([
 
                 this.textureFurDiffuse = UncompressedTextureLoader.load('data/textures/' + this.getPresetParameter('diffuseTexture'), callback);
                 this.textureFurAlpha = UncompressedTextureLoader.load('data/textures/' + this.getPresetParameter('alphaTexture'), callback);
+
+                this.furThickness = this.getPresetParameter('thickness');
+                this.furLayers = this.getPresetParameter('layers');
+                this.furStartColor = this.getPresetParameter('startColor');
+                this.furEndColor = this.getPresetParameter('endColor');
+                this.furWaveScale = this.getPresetParameter('waveScale');
+            }
+
+            chooseNextPreset() { // TODO
+                FurPresets.next();
+
+                this.furThickness = this.getPresetParameter('thickness');
+                this.furLayers = this.getPresetParameter('layers');
+                this.furStartColor = this.getPresetParameter('startColor');
+                this.furEndColor = this.getPresetParameter('endColor');
+                this.furWaveScale = this.getPresetParameter('waveScale');
+            }
+
+            choosePreviousPreset() { // TODO
+                FurPresets.previous();
 
                 this.furThickness = this.getPresetParameter('thickness');
                 this.furLayers = this.getPresetParameter('layers');
