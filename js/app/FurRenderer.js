@@ -248,14 +248,14 @@ define([
                 this.shaderDiffuseColored.use();
                 this.setTexture2D(0, this.textureFurDiffuse, this.shaderDiffuseColored.sTexture);
                 gl.uniform4f(this.shaderDiffuseColored.color, this.furStartColor[0], this.furStartColor[1], this.furStartColor[2], this.furStartColor[3]);
-                this.drawDiffuseNormalStrideVBOTranslatedRotatedScaled(this.shaderDiffuseColored, this.modelCube, 0, -25, 0, 0, 0, 0, 1, 1, 1); // FIXME position
+                this.drawDiffuseNormalStrideVBOTranslatedRotatedScaled(this.shaderDiffuseColored, this.modelCube, 0, 0, 0, 0, 0, 0, 1, 1, 1);
             }
 
             drawFur() {
                 this.shaderFur.use();
                 this.setTexture2D(0, this.textureFurDiffuse, this.shaderFur.diffuseMap);
                 this.setTexture2D(1, this.textureFurAlpha, this.shaderFur.alphaMap);
-                this.drawFurVBOTranslatedRotatedScaledInstanced(this.shaderFur, this.modelCube, 0, -25, 0, 0, 0, 0, 1, 1, 1); // FIXME position
+                this.drawFurVBOTranslatedRotatedScaledInstanced(this.shaderFur, this.modelCube, 0, 0, 0, 0, 0, 0, 1, 1, 1);
             }
 
             drawDiffuseNormalStrideVBOTranslatedRotatedScaled(shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
