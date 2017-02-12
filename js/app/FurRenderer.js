@@ -35,7 +35,10 @@ define([
 
                 this.angleYaw = 0; // camera rotation angle
                 this.lastTime = 0; // used for animating camera
-                this.furTimer = 0; // camera rotation angle
+                this.furTimer = 0; 
+                this.slideTimer = 0;
+                this.slideDirection = 1;
+                this.sliding = false;
 
                 this.tableTextureType = 'marble'; // floor texture: 'granite', 'marble', 'wood3'
 
@@ -46,9 +49,10 @@ define([
                 this.TRIANGLE_VERTICES_DATA_UV_OFFSET = 3;
                 this.FOV_LANDSCAPE = 25.0; // FOV for landscape
                 this.FOV_PORTRAIT = 40.0; // FOV for portrait
-                this.YAW_COEFF_NORMAL = 150.0; // camera rotation speed
+                this.YAW_COEFF_NORMAL = 8000.0; // camera rotation speed
 
                 this.FUR_ANIMATION_SPEED = 1500.0;
+                this.SLIDE_DUDATION = 1500;
             }
 
             /**
@@ -139,6 +143,9 @@ define([
                 this.furStartColor = this.getPresetParameter('startColor');
                 this.furEndColor = this.getPresetParameter('endColor');
                 this.furWaveScale = this.getPresetParameter('waveScale');
+
+                this.sliding = true;
+                this.slideDirection = 1;
             }
 
             choosePreviousPreset() { // TODO
@@ -171,16 +178,22 @@ define([
              */
             positionCamera(a) {
                 var x, y, z,
-                    sina, cosa;
+                    sina, cosa,
+                    offset;
 
                 sina = Math.sin(this.angleYaw / 360.0 * 6.2831852);
                 cosa = Math.cos(this.angleYaw / 360.0 * 6.2831852);
                 x = sina * 180.0;
                 y = cosa * 180.0;
                 z = 250.0;
+                x = 190;
+                y = 0;
+
+                offset = ((1.0 - Math.cos(this.slideTimer * 3.1415926)) / 2) * 300;
+                // console.log((1.0-Math.cos(this.slideTimer * 3.1415926)) / 2)
 
                 MatrixUtils.mat4.identity(this.mVMatrix);
-                MatrixUtils.mat4.lookAt(this.mVMatrix, [x, y, z], [0, 0, 0], [0, 0, 1]);
+                MatrixUtils.mat4.lookAt(this.mVMatrix, [x, y+offset, z], [0, 0+offset, 0], [0, 0, 1]);
             }
 
             /**
@@ -248,14 +261,14 @@ define([
                 this.shaderDiffuseColored.use();
                 this.setTexture2D(0, this.textureFurDiffuse, this.shaderDiffuseColored.sTexture);
                 gl.uniform4f(this.shaderDiffuseColored.color, this.furStartColor[0], this.furStartColor[1], this.furStartColor[2], this.furStartColor[3]);
-                this.drawDiffuseNormalStrideVBOTranslatedRotatedScaled(this.shaderDiffuseColored, this.modelCube, 0, 0, 0, 0, 0, 0, 1, 1, 1);
+                this.drawDiffuseNormalStrideVBOTranslatedRotatedScaled(this.shaderDiffuseColored, this.modelCube, 0, 0, 0, 0, 0, this.angleYaw, 1, 1, 1);
             }
 
             drawFur() {
                 this.shaderFur.use();
                 this.setTexture2D(0, this.textureFurDiffuse, this.shaderFur.diffuseMap);
                 this.setTexture2D(1, this.textureFurAlpha, this.shaderFur.alphaMap);
-                this.drawFurVBOTranslatedRotatedScaledInstanced(this.shaderFur, this.modelCube, 0, 0, 0, 0, 0, 0, 1, 1, 1);
+                this.drawFurVBOTranslatedRotatedScaledInstanced(this.shaderFur, this.modelCube, 0, 0, 0, 0, 0, this.angleYaw, 1, 1, 1);
             }
 
             drawDiffuseNormalStrideVBOTranslatedRotatedScaled(shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
@@ -328,12 +341,19 @@ define([
 
                     this.furTimer += elapsed / this.FUR_ANIMATION_SPEED;
                     this.furTimer %= 1.0;
+
+                    if(this.sliding) {
+                        this.slideTimer += elapsed / this.SLIDE_DUDATION;
+                        // this.slideTimer %= 1.0;
+                        if(this.slideTimer > 1.0) {
+                            this.sliding = false;
+                        }
+                    } else {
+                        this.slideTimer = 0.0;
+                    }
                 }
 
                 this.lastTime = timeNow;
-
-                // this.angleYaw = 0;
-                // this.furTimer = 0;
             }
         }
 
