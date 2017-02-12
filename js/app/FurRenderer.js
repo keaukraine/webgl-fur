@@ -40,7 +40,8 @@ define([
                 this.slideDirection = 1;
                 this.sliding = false;
 
-                this.tableTextureType = 'marble'; // floor texture: 'granite', 'marble', 'wood3'
+                this.currentPreset = null;
+                this.nextPreset = null;
 
                 this.ITEMS_TO_LOAD = 3; // total number of OpenGL buffers+textures to load
                 this.FLOAT_SIZE_BYTES = 4; // float size, used to calculate stride sizes
@@ -117,45 +118,56 @@ define([
                 this.loadFurData(boundUpdateCallback);
             }
 
-            getPresetParameter(param) {
-                return FurPresets.current()[param];
+            getCurrentPresetParameter(param) {
+                return this.currentPreset[param];
+            }
+
+            getNextPresetParameter(param) {
+                return this.nextPreset[param];
             }
 
             loadFurData(callback) {
+                this.currentPreset = FurPresets.current();
+
                 this.textureFurDiffuse && gl.deleteTexture(this.textureFurDiffuse);
                 this.textureFurAlpha && gl.deleteTexture(this.textureFurAlpha);
 
-                this.textureFurDiffuse = UncompressedTextureLoader.load('data/textures/' + this.getPresetParameter('diffuseTexture'), callback);
-                this.textureFurAlpha = UncompressedTextureLoader.load('data/textures/' + this.getPresetParameter('alphaTexture'), callback);
+                this.textureFurDiffuse = UncompressedTextureLoader.load('data/textures/' + this.getCurrentPresetParameter('diffuseTexture'), callback);
+                this.textureFurAlpha = UncompressedTextureLoader.load('data/textures/' + this.getCurrentPresetParameter('alphaTexture'), callback);
 
-                this.furThickness = this.getPresetParameter('thickness');
-                this.furLayers = this.getPresetParameter('layers');
-                this.furStartColor = this.getPresetParameter('startColor');
-                this.furEndColor = this.getPresetParameter('endColor');
-                this.furWaveScale = this.getPresetParameter('waveScale');
+                this.furThickness = this.getCurrentPresetParameter('thickness');
+                this.furLayers = this.getCurrentPresetParameter('layers');
+                this.furStartColor = this.getCurrentPresetParameter('startColor');
+                this.furEndColor = this.getCurrentPresetParameter('endColor');
+                this.furWaveScale = this.getCurrentPresetParameter('waveScale');
             }
 
             chooseNextPreset() { // TODO
-                FurPresets.next();
-
-                this.furThickness = this.getPresetParameter('thickness');
-                this.furLayers = this.getPresetParameter('layers');
-                this.furStartColor = this.getPresetParameter('startColor');
-                this.furEndColor = this.getPresetParameter('endColor');
-                this.furWaveScale = this.getPresetParameter('waveScale');
-
                 this.sliding = true;
                 this.slideDirection = 1;
+
+                this.nextPreset = FurPresets.next();
+                console.log(this.nextPreset);
+
+                this.onFinishSliding = function() {
+                    this.currentPreset = FurPresets.current();
+
+                    this.furThickness = this.getCurrentPresetParameter('thickness');
+                    this.furLayers = this.getCurrentPresetParameter('layers');
+                    this.furStartColor = this.getCurrentPresetParameter('startColor');
+                    this.furEndColor = this.getCurrentPresetParameter('endColor');
+                    this.furWaveScale = this.getCurrentPresetParameter('waveScale');
+                }
             }
 
             choosePreviousPreset() { // TODO
                 FurPresets.previous();
 
-                this.furThickness = this.getPresetParameter('thickness');
-                this.furLayers = this.getPresetParameter('layers');
-                this.furStartColor = this.getPresetParameter('startColor');
-                this.furEndColor = this.getPresetParameter('endColor');
-                this.furWaveScale = this.getPresetParameter('waveScale');
+                this.furThickness = this.getCurrentPresetParameter('thickness');
+                this.furLayers = this.getCurrentPresetParameter('layers');
+                this.furStartColor = this.getCurrentPresetParameter('startColor');
+                this.furEndColor = this.getCurrentPresetParameter('endColor');
+                this.furWaveScale = this.getCurrentPresetParameter('waveScale');
             }
 
             /**
@@ -347,6 +359,7 @@ define([
                         // this.slideTimer %= 1.0;
                         if(this.slideTimer > 1.0) {
                             this.sliding = false;
+                            this.onFinishSliding();
                         }
                     } else {
                         this.slideTimer = 0.0;
