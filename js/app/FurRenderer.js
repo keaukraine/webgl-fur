@@ -35,15 +35,16 @@ define([
 
                 this.angleYaw = 0; // camera rotation angle
                 this.lastTime = 0; // used for animating camera
-                this.furTimer = 0; 
+                this.furTimer = 0;
                 this.slideTimer = 0;
                 this.slideDirection = 1;
                 this.sliding = false;
+                this.drawNextFur = false;
 
                 this.currentPreset = null;
                 this.nextPreset = null;
 
-                this.ITEMS_TO_LOAD = 3; // total number of OpenGL buffers+textures to load
+                this.ITEMS_TO_LOAD = 4; // total number of OpenGL buffers+textures to load
                 this.FLOAT_SIZE_BYTES = 4; // float size, used to calculate stride sizes
                 this.TRIANGLE_VERTICES_DATA_STRIDE_BYTES = 5 * this.FLOAT_SIZE_BYTES;
                 this.TRIANGLE_VERTICES_DATA_POS_OFFSET = 0;
@@ -51,6 +52,7 @@ define([
                 this.FOV_LANDSCAPE = 25.0; // FOV for landscape
                 this.FOV_PORTRAIT = 40.0; // FOV for portrait
                 this.YAW_COEFF_NORMAL = 8000.0; // camera rotation speed
+                this.DISTANCE_TO_NEXT_CUBE = 300;
 
                 this.FUR_ANIMATION_SPEED = 1500.0;
                 this.SLIDE_DUDATION = 1500;
@@ -114,6 +116,7 @@ define([
 
                 this.modelCube = new FullModel();
                 this.modelCube.load('data/models/box10_rounded', boundUpdateCallback);
+                this.textureChecker = UncompressedTextureLoader.load('data/textures/checker.png', boundUpdateCallback);
 
                 this.loadFurData(boundUpdateCallback);
             }
@@ -142,12 +145,29 @@ define([
                 this.furWaveScale = this.getCurrentPresetParameter('waveScale');
             }
 
+            loadNextFurTextures(callback) {
+                this.textureFurDiffuseNext && gl.deleteTexture(this.textureFurDiffuseNext);
+                this.textureFurAlphaNext && gl.deleteTexture(this.textureFurAlphaNext);
+
+                this.textureFurDiffuseNext = UncompressedTextureLoader.load('data/textures/' + this.getNextPresetParameter('diffuseTexture'), callback);
+                this.textureFurAlphaNext = UncompressedTextureLoader.load('data/textures/' + this.getNextPresetParameter('alphaTexture'), callback);
+            }
+
             chooseNextPreset() { // TODO
+                var root = this,
+                    counter = 0;
+
                 this.sliding = true;
                 this.slideDirection = 1;
-
                 this.nextPreset = FurPresets.next();
-                console.log(this.nextPreset);
+                this.drawNextFur = false;
+
+                this.loadNextFurTextures(function() {
+                    counter++;
+                    if (counter == 2) {
+                        root.drawNextFur = true;
+                    }
+                })
 
                 this.onFinishSliding = function() {
                     this.currentPreset = FurPresets.current();
@@ -201,11 +221,11 @@ define([
                 x = 190;
                 y = 0;
 
-                offset = ((1.0 - Math.cos(this.slideTimer * 3.1415926)) / 2) * 300;
+                offset = ((1.0 - Math.cos(this.slideTimer * 3.1415926)) / 2) * this.DISTANCE_TO_NEXT_CUBE;
                 // console.log((1.0-Math.cos(this.slideTimer * 3.1415926)) / 2)
 
                 MatrixUtils.mat4.identity(this.mVMatrix);
-                MatrixUtils.mat4.lookAt(this.mVMatrix, [x, y+offset, z], [0, 0+offset, 0], [0, 0, 1]);
+                MatrixUtils.mat4.lookAt(this.mVMatrix, [x, y + offset, z], [0, 0 + offset, 0], [0, 0, 1]);
             }
 
             /**
@@ -248,16 +268,22 @@ define([
 
                 // this.drawTable();
 
-                this.drawCubeDiffuse();
+                this.drawCubeDiffuse(0, this.textureFurDiffuse, this.currentPreset);
 
                 gl.disable(gl.CULL_FACE);
                 gl.enable(gl.BLEND);
                 // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // too dim
                 // gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // too bright
                 gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE);
-                this.drawFur();
+                this.drawFur(0, this.textureFurDiffuse, this.textureFurAlpha, this.currentPreset);
                 gl.disable(gl.BLEND);
 
+                if (this.drawNextFur) {
+                    // this.drawCubeDiffuseNext();
+                    // this.drawFurNext();
+                } else {
+                    this.drawLoadingCube();
+                }
             }
 
             drawTable() {
@@ -269,18 +295,25 @@ define([
                 this.drawLMVBOTranslatedRotatedScaled(this.shaderLMTable, this.modelTable, 0, 0, 0, 0, 0, 0, 1, 1, 1);
             }
 
-            drawCubeDiffuse() {
+            drawCubeDiffuse(offsetY, texture, preset) {
                 this.shaderDiffuseColored.use();
-                this.setTexture2D(0, this.textureFurDiffuse, this.shaderDiffuseColored.sTexture);
-                gl.uniform4f(this.shaderDiffuseColored.color, this.furStartColor[0], this.furStartColor[1], this.furStartColor[2], this.furStartColor[3]);
-                this.drawDiffuseNormalStrideVBOTranslatedRotatedScaled(this.shaderDiffuseColored, this.modelCube, 0, 0, 0, 0, 0, this.angleYaw, 1, 1, 1);
+                this.setTexture2D(0, texture, this.shaderDiffuseColored.sTexture);
+                gl.uniform4f(this.shaderDiffuseColored.color, preset.startColor[0], preset.startColor[1], preset.startColor[2], preset.startColor[3]);
+                this.drawDiffuseNormalStrideVBOTranslatedRotatedScaled(this.shaderDiffuseColored, this.modelCube, 0, offsetY, 0, 0, 0, this.angleYaw, 1, 1, 1);
             }
 
-            drawFur() {
+            drawLoadingCube() {
+                this.shaderDiffuseColored.use();
+                this.setTexture2D(0, this.textureChecker, this.shaderDiffuseColored.sTexture);
+                gl.uniform4f(this.shaderDiffuseColored.color, 0.8, 0.8, 0.8, 1);
+                this.drawDiffuseNormalStrideVBOTranslatedRotatedScaled(this.shaderDiffuseColored, this.modelCube, 0, this.DISTANCE_TO_NEXT_CUBE * this.slideDirection, 0, 0, 0, this.angleYaw, 1, 1, 1);
+            }
+
+            drawFur(offsetY, textureDiffuse, textureAlpha, preset) {
                 this.shaderFur.use();
-                this.setTexture2D(0, this.textureFurDiffuse, this.shaderFur.diffuseMap);
-                this.setTexture2D(1, this.textureFurAlpha, this.shaderFur.alphaMap);
-                this.drawFurVBOTranslatedRotatedScaledInstanced(this.shaderFur, this.modelCube, 0, 0, 0, 0, 0, this.angleYaw, 1, 1, 1);
+                this.setTexture2D(0, textureDiffuse, this.shaderFur.diffuseMap);
+                this.setTexture2D(1, textureAlpha, this.shaderFur.alphaMap);
+                this.drawFurVBOTranslatedRotatedScaledInstanced(preset, this.shaderFur, this.modelCube, 0, offsetY, 0, 0, 0, this.angleYaw, 1, 1, 1);
             }
 
             drawDiffuseNormalStrideVBOTranslatedRotatedScaled(shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
@@ -298,7 +331,7 @@ define([
                 gl.drawElements(gl.TRIANGLES, model.getNumIndices() * 3, gl.UNSIGNED_SHORT, 0);
             }
 
-            drawFurVBOTranslatedRotatedScaledInstanced(shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
+            drawFurVBOTranslatedRotatedScaledInstanced(preset, shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
                 model.bindBuffers();
 
                 gl.enableVertexAttribArray(shader.rm_Vertex);
@@ -312,13 +345,13 @@ define([
                 this.calculateMVPMatrix(tx, ty, tz, rx, ry, rz, sx, sy, sz);
 
                 gl.uniformMatrix4fv(shader.view_proj_matrix, false, this.mMVPMatrix);
-                gl.uniform1f(shader.layerThickness, this.furThickness);
-                gl.uniform1f(shader.layersCount, this.furLayers);
-                gl.uniform4f(shader.colorStart, this.furStartColor[0], this.furStartColor[1], this.furStartColor[2], this.furStartColor[3]);
-                gl.uniform4f(shader.colorEnd, this.furEndColor[0], this.furEndColor[1], this.furEndColor[2], this.furEndColor[3]);
+                gl.uniform1f(shader.layerThickness, preset.thickness);
+                gl.uniform1f(shader.layersCount, preset.layers);
+                gl.uniform4f(shader.colorStart, preset.startColor[0], preset.startColor[1], preset.startColor[2], preset.startColor[3]);
+                gl.uniform4f(shader.colorEnd, preset.endColor[0], preset.endColor[1], preset.endColor[2], preset.endColor[3]);
                 gl.uniform1f(shader.time, this.furTimer);
-                gl.uniform1f(shader.waveScale, this.furWaveScale);
-                gl.drawElementsInstanced(gl.TRIANGLES, model.getNumIndices() * 3, gl.UNSIGNED_SHORT, 0, this.furLayers);
+                gl.uniform1f(shader.waveScale, preset.waveScale);
+                gl.drawElementsInstanced(gl.TRIANGLES, model.getNumIndices() * 3, gl.UNSIGNED_SHORT, 0, preset.layers);
             }
 
             drawLMVBOTranslatedRotatedScaled(shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
@@ -354,10 +387,9 @@ define([
                     this.furTimer += elapsed / this.FUR_ANIMATION_SPEED;
                     this.furTimer %= 1.0;
 
-                    if(this.sliding) {
+                    if (this.sliding) {
                         this.slideTimer += elapsed / this.SLIDE_DUDATION;
-                        // this.slideTimer %= 1.0;
-                        if(this.slideTimer > 1.0) {
+                        if (this.slideTimer > 1.0) {
                             this.sliding = false;
                             this.onFinishSliding();
                         }
