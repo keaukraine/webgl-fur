@@ -52,7 +52,7 @@ define([
                 this.FOV_LANDSCAPE = 25.0; // FOV for landscape
                 this.FOV_PORTRAIT = 40.0; // FOV for portrait
                 this.YAW_COEFF_NORMAL = 8000.0; // camera rotation speed
-                this.DISTANCE_TO_NEXT_CUBE = 300;
+                this.DISTANCE_TO_NEXT_CUBE = 200;
 
                 this.FUR_ANIMATION_SPEED = 1500.0;
                 this.SLIDE_DUDATION = 1500;
@@ -162,12 +162,14 @@ define([
                 this.nextPreset = FurPresets.next();
                 this.drawNextFur = false;
 
-                this.loadNextFurTextures(function() {
-                    counter++;
-                    if (counter == 2) {
-                        root.drawNextFur = true;
-                    }
-                })
+                setTimeout(function() { // FIXME
+                    root.loadNextFurTextures(function() {
+                        counter++;
+                        if (counter == 2) {
+                            root.drawNextFur = true;
+                        }
+                    });
+                }, 800);
 
                 this.onFinishSliding = function() {
                     this.currentPreset = FurPresets.current();
@@ -269,21 +271,31 @@ define([
                 // this.drawTable();
 
                 this.drawCubeDiffuse(0, this.textureFurDiffuse, this.currentPreset);
+                if (this.drawNextFur) {
+                    this.drawCubeDiffuse(this.DISTANCE_TO_NEXT_CUBE * this.slideDirection, this.textureFurDiffuseNext, this.nextPreset);
+                } else {
+                    this.drawLoadingCube();
+                }
 
                 gl.disable(gl.CULL_FACE);
                 gl.enable(gl.BLEND);
                 // gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); // too dim
                 // gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // too bright
                 gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE);
+
                 this.drawFur(0, this.textureFurDiffuse, this.textureFurAlpha, this.currentPreset);
+                if (this.drawNextFur) {
+                    this.drawFur(this.DISTANCE_TO_NEXT_CUBE * this.slideDirection, this.textureFurDiffuseNext, this.textureFurAlphaNext, this.currentPreset);
+                }
+
                 gl.disable(gl.BLEND);
 
-                if (this.drawNextFur) {
-                    // this.drawCubeDiffuseNext();
-                    // this.drawFurNext();
-                } else {
-                    this.drawLoadingCube();
-                }
+                // if (this.drawNextFur) {
+                //     this.drawCubeDiffuse(this.DISTANCE_TO_NEXT_CUBE * this.slideDirection, this.textureFurDiffuseNext, this.nextPreset);
+                //     this.drawFur(this.DISTANCE_TO_NEXT_CUBE * this.slideDirection, this.textureFurDiffuseNext, this.textureFurAlphaNext, this.currentPreset);
+                // } else {
+                //     this.drawLoadingCube();
+                // }
             }
 
             drawTable() {
