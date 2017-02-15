@@ -40,6 +40,7 @@ define([
                 this.slideDirection = 1;
                 this.sliding = false;
                 this.drawNextFur = false;
+                this.loadingNextFur = false;
 
                 this.currentPreset = null;
                 this.nextPreset = null;
@@ -55,7 +56,7 @@ define([
                 this.DISTANCE_TO_NEXT_CUBE = 200;
 
                 this.FUR_ANIMATION_SPEED = 1500.0;
-                this.SLIDE_DUDATION = 1500;
+                this.SLIDE_DUDATION = 3000;
             }
 
             /**
@@ -157,29 +158,38 @@ define([
                 var root = this,
                     counter = 0;
 
-                this.sliding = true;
-                this.slideDirection = 1;
+                // this.sliding = true;
+                // this.slideDirection = 1;
                 this.nextPreset = FurPresets.next();
                 this.drawNextFur = false;
 
-                setTimeout(function() { // FIXME
+                this.loadingNextFur = true;
+
+                // setTimeout(function() { // FIXME
                     root.loadNextFurTextures(function() {
                         counter++;
                         if (counter == 2) {
+                            root.loadingNextFur = false;
+
+                            // root.sliding = true;
+                            root.slideDirection = 1;
+                            // root.nextPreset = FurPresets.next();
                             root.drawNextFur = true;
+                            console.log('loaded both new textures!');
                         }
                     });
-                }, 800);
+                // }, 500);
+            }
 
-                this.onFinishSliding = function() {
-                    this.currentPreset = FurPresets.current();
+            onFinishSliding() {
+                console.log('onFinishSliding');
+                this.drawNextFur = false;
+                this.currentPreset = FurPresets.current();
 
-                    this.furThickness = this.getCurrentPresetParameter('thickness');
-                    this.furLayers = this.getCurrentPresetParameter('layers');
-                    this.furStartColor = this.getCurrentPresetParameter('startColor');
-                    this.furEndColor = this.getCurrentPresetParameter('endColor');
-                    this.furWaveScale = this.getCurrentPresetParameter('waveScale');
-                }
+                // gl.deleteTexture(this.textureFurDiffuse);
+                // gl.deleteTexture(this.textureFurAlpha);
+                // this.textureFurDiffuse = this.textureFurDiffuseNext;
+                // this.textureFurAlpha = this.textureFurAlphaNext;
             }
 
             choosePreviousPreset() { // TODO
@@ -257,6 +267,33 @@ define([
                     return;
                 }
 
+                if (!this.loadingNextFur) {
+                    if (this.textureFurDiffuseNext && this.textureFurAlphaNext) {
+                        this.currentPreset = FurPresets.current();
+                        console.log('unloading old textures...');
+                        gl.deleteTexture(this.textureFurDiffuse);
+                        gl.deleteTexture(this.textureFurAlpha);
+                        this.textureFurDiffuse = this.textureFurDiffuseNext;
+                        this.textureFurAlpha = this.textureFurAlphaNext;
+                        this.textureFurDiffuseNext = null;
+                        this.textureFurAlphaNext = null;
+                    }
+                }
+
+                // if (!this.drawNextFur) {
+                //     if (this.textureFurDiffuseNext && this.textureFurAlphaNext) {
+                //         console.log('unloading old textures...');
+                //         console.log(this.textureFurDiffuseNext);
+                //         console.log(this.textureFurAlphaNext);
+                //         gl.deleteTexture(this.textureFurDiffuse);
+                //         gl.deleteTexture(this.textureFurAlpha);
+                //         this.textureFurDiffuse = this.textureFurDiffuseNext;
+                //         this.textureFurAlpha = this.textureFurAlphaNext;
+                //         this.textureFurDiffuseNext = null;
+                //         this.textureFurAlphaNext = null;
+                //     }
+                // }
+
                 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
                 gl.clearColor(0.3, 0.3, 0.3, 1.0);
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -268,14 +305,12 @@ define([
                 this.positionCamera(0.0);
                 this.setCameraFOV(0.6); // fixme multiplier should be 1.0
 
-                // this.drawTable();
-
                 this.drawCubeDiffuse(0, this.textureFurDiffuse, this.currentPreset);
-                if (this.drawNextFur) {
-                    this.drawCubeDiffuse(this.DISTANCE_TO_NEXT_CUBE * this.slideDirection, this.textureFurDiffuseNext, this.nextPreset);
-                } else {
-                    this.drawLoadingCube();
-                }
+                // if (this.drawNextFur) {
+                //     this.drawCubeDiffuse(this.DISTANCE_TO_NEXT_CUBE * this.slideDirection, this.textureFurDiffuseNext, this.nextPreset);
+                // } else {
+                //     this.drawLoadingCube(this.DISTANCE_TO_NEXT_CUBE * this.slideDirection);
+                // }
 
                 gl.disable(gl.CULL_FACE);
                 gl.enable(gl.BLEND);
@@ -284,18 +319,11 @@ define([
                 gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE);
 
                 this.drawFur(0, this.textureFurDiffuse, this.textureFurAlpha, this.currentPreset);
-                if (this.drawNextFur) {
-                    this.drawFur(this.DISTANCE_TO_NEXT_CUBE * this.slideDirection, this.textureFurDiffuseNext, this.textureFurAlphaNext, this.currentPreset);
-                }
+                // if (this.drawNextFur) {
+                //     this.drawFur(this.DISTANCE_TO_NEXT_CUBE * this.slideDirection, this.textureFurDiffuseNext, this.textureFurAlphaNext, this.nextPreset);
+                // }
 
                 gl.disable(gl.BLEND);
-
-                // if (this.drawNextFur) {
-                //     this.drawCubeDiffuse(this.DISTANCE_TO_NEXT_CUBE * this.slideDirection, this.textureFurDiffuseNext, this.nextPreset);
-                //     this.drawFur(this.DISTANCE_TO_NEXT_CUBE * this.slideDirection, this.textureFurDiffuseNext, this.textureFurAlphaNext, this.currentPreset);
-                // } else {
-                //     this.drawLoadingCube();
-                // }
             }
 
             drawTable() {
@@ -314,11 +342,11 @@ define([
                 this.drawDiffuseNormalStrideVBOTranslatedRotatedScaled(this.shaderDiffuseColored, this.modelCube, 0, offsetY, 0, 0, 0, this.angleYaw, 1, 1, 1);
             }
 
-            drawLoadingCube() {
+            drawLoadingCube(offsetY) {
                 this.shaderDiffuseColored.use();
                 this.setTexture2D(0, this.textureChecker, this.shaderDiffuseColored.sTexture);
                 gl.uniform4f(this.shaderDiffuseColored.color, 0.8, 0.8, 0.8, 1);
-                this.drawDiffuseNormalStrideVBOTranslatedRotatedScaled(this.shaderDiffuseColored, this.modelCube, 0, this.DISTANCE_TO_NEXT_CUBE * this.slideDirection, 0, 0, 0, this.angleYaw, 1, 1, 1);
+                this.drawDiffuseNormalStrideVBOTranslatedRotatedScaled(this.shaderDiffuseColored, this.modelCube, 0, offsetY, 0, 0, 0, this.angleYaw, 1, 1, 1);
             }
 
             drawFur(offsetY, textureDiffuse, textureAlpha, preset) {
