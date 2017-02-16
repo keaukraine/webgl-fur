@@ -36,10 +36,6 @@ define([
                 this.angleYaw = 0; // camera rotation angle
                 this.lastTime = 0; // used for animating camera
                 this.furTimer = 0;
-                this.slideTimer = 0;
-                this.slideDirection = 1;
-                this.sliding = false;
-                this.drawNextFur = false;
                 this.loadingNextFur = false;
 
                 this.currentPreset = null;
@@ -161,13 +157,13 @@ define([
                 this.nextPreset = preset;
                 this.loadingNextFur = true;
 
-                    root.loadNextFurTextures(function() {
-                        counter++;
-                        if (counter == 2) {
-                            root.loadingNextFur = false;
-                            console.log('loaded both new textures!');
-                        }
-                    });
+                root.loadNextFurTextures(function() {
+                    counter++;
+                    if (counter == 2) {
+                        root.loadingNextFur = false;
+                        console.log('loaded both new textures!');
+                    }
+                });
             }
 
             chooseNextPreset() {
@@ -198,8 +194,7 @@ define([
              */
             positionCamera(a) {
                 var x, y, z,
-                    sina, cosa,
-                    offset;
+                    sina, cosa;
 
                 sina = Math.sin(this.angleYaw / 360.0 * 6.2831852);
                 cosa = Math.cos(this.angleYaw / 360.0 * 6.2831852);
@@ -209,11 +204,8 @@ define([
                 x = 190;
                 y = 0;
 
-                offset = ((1.0 - Math.cos(this.slideTimer * 3.1415926)) / 2) * this.DISTANCE_TO_NEXT_CUBE;
-                // console.log((1.0-Math.cos(this.slideTimer * 3.1415926)) / 2)
-
                 MatrixUtils.mat4.identity(this.mVMatrix);
-                MatrixUtils.mat4.lookAt(this.mVMatrix, [x, y + offset, z], [0, 0 + offset, 0], [0, 0, 1]);
+                MatrixUtils.mat4.lookAt(this.mVMatrix, [x, y, z], [0, 0, 0], [0, 0, 1]);
             }
 
             /**
