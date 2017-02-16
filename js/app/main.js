@@ -70,7 +70,7 @@ define([
             // toggle settings visibility
             $('#toggleSettings').on('click', function(e) {
                 var $this = $(this),
-                    $controls = $('#row-settings');
+                    $controls = $('#row-settings, #nextPreset, #previousPreset');
 
                 $this.toggleClass('open');
                 $controls.toggle();
