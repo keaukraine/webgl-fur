@@ -49,9 +49,14 @@ body {
         }
     }
 
-    label {
+    .control-label {
         color: #fff;
         text-shadow: rgb(3, 3, 3) 0px 0px 8px;
+        padding-top: 0;
+    }
+
+    .slider {
+        min-width: 100%;
     }
 }
 

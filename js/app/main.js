@@ -3,11 +3,13 @@
 define([
         'FurRenderer',
         'jquery',
+        'bootstrap-slider',
         'framework/utils/FullscreenUtils'
     ],
     function(
         FurRenderer,
         $,
+        Slider,
         FullScreenUtils) {
 
         var renderer;
@@ -42,9 +44,7 @@ define([
             renderer.angleYaw = oldYaw;
         }
 
-        $(function() {
-            initRenderer();
-
+        function initUI() {
             // initialize fullscreen if supported
             if (FullScreenUtils.isFullScreenSupported()) {
                 $('#toggleFullscreen').on('click', function(e) {
@@ -84,21 +84,18 @@ define([
                 renderer.choosePreviousPreset();
             });
 
-            // update scene configuration and re-init renderer
-            $('#row-settings .btn').on('click', function() {
-                var $this = $(this),
-                    option = $this.data('option'),
-                    value = $this.data('value');
+            $('input.slider').slider();
 
-                $this
-                    .siblings()
-                    .removeClass('active')
-                    .end()
-                    .addClass('active');
-
-                config[option] = value;
-
-                initRenderer();
+            $('#sliderLayers').on('change', function(e) {
+                renderer.layers = e.value.newValue;
             });
+            $('#sliderThickness').on('change', function(e) {
+                renderer.thickness = e.value.newValue;
+            });
+        }
+
+        $(function() {
+            initRenderer();
+            initUI();
         });
     });

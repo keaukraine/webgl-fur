@@ -152,6 +152,22 @@ define([
                 this.textureFurAlphaNext = UncompressedTextureLoader.load('data/textures/' + this.getNextPresetParameter('alphaTexture'), callback);
             }
 
+            get layers() {
+                return this.currentPreset['layers'];
+            }
+
+            set layers(value) {
+                this.currentPreset['layers'] = value;
+            }
+
+            get thickness() {
+                return this.currentPreset['thickness'];
+            }
+
+            set thickness(value) {
+                this.currentPreset['thickness'] = value;
+            }
+
             loadPreset(preset) {
                 var root = this,
                     counter = 0;
@@ -354,23 +370,6 @@ define([
                 gl.uniform1f(shader.time, this.furTimer);
                 gl.uniform1f(shader.waveScale, scale);
                 gl.drawElementsInstanced(gl.TRIANGLES, model.getNumIndices() * 3, gl.UNSIGNED_SHORT, 0, preset.layers);
-            }
-
-            drawLMVBOTranslatedRotatedScaled(shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
-                model.bindBuffers();
-
-                gl.enableVertexAttribArray(shader.rm_Vertex);
-                gl.enableVertexAttribArray(shader.rm_TexCoord0);
-                gl.enableVertexAttribArray(shader.rm_TexCoord1);
-
-                gl.vertexAttribPointer(shader.rm_Vertex, 3, gl.FLOAT, false, 4 * (3 + 2 + 2), 0);
-                gl.vertexAttribPointer(shader.rm_TexCoord0, 2, gl.FLOAT, false, 4 * (3 + 2 + 2), 4 * (3));
-                gl.vertexAttribPointer(shader.rm_TexCoord1, 2, gl.FLOAT, false, 4 * (3 + 2 + 2), 4 * (3 + 2));
-
-                this.calculateMVPMatrix(tx, ty, tz, rx, ry, rz, sx, sy, sz);
-
-                gl.uniformMatrix4fv(shader.view_proj_matrix, false, this.mMVPMatrix);
-                gl.drawElements(gl.TRIANGLES, model.getNumIndices() * 3, gl.UNSIGNED_SHORT, 0);
             }
 
             /**

@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Bitcoin 3D WebGL Demo">
     <meta name="author" content="Oleksandr Popov">
-
     <link rel="apple-touch-icon" sizes="57x57" href="/icons/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="/icons/apple-icon-60x60.png">
     <link rel="apple-touch-icon" sizes="72x72" href="/icons/apple-icon-72x72.png">
@@ -17,7 +16,7 @@
     <link rel="apple-touch-icon" sizes="144x144" href="/icons/apple-icon-144x144.png">
     <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-icon-152x152.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-icon-180x180.png">
-    <link rel="icon" type="image/png" sizes="192x192"  href="/icons/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/android-icon-192x192.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/icons/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
@@ -25,7 +24,6 @@
     <meta name="msapplication-TileColor" content="#cccccc">
     <meta name="msapplication-TileImage" content="/icons/ms-icon-144x144.png">
     <meta name="theme-color" content="#cccccc">
-
     <title>Fur WebGL 2.0 demo</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -61,20 +59,24 @@
             </div>
             <div class="row" id="row-settings" style="display: none;">
                 <div class="col col-lg-5 col-md-8 col-sm-8">
-                    <!--
-                     <form class="form-horizontal">
+                    <form class="form-horizontal">
                         <div class="form-group">
-                            <label class="col-sm-2 control-label text-left">Amount</label>
-                            <div class="col-sm-10">
-                                <div class="btn-group btn-group-justified" role="group" aria-label="Coin Model" id="group-model">
-                                    <a href="javascript:void(0);" class="btn btn-default active" role="button" data-option="model" data-value="1">Pile</a>
-                                    <a href="javascript:void(0);" class="btn btn-default" role="button" data-option="model" data-value="2">Stack</a>
-                                    <a href="javascript:void(0);" class="btn btn-default" role="button" data-option="model" data-value="3">Two Coins</a>
-                                </div>
+                            <label class="col-sm-3 control-label text-left">
+                                Number of Layers
+                            </label>
+                            <div class="col-sm-9">
+                                <input id="sliderLayers" class=".slider" type="text" data-provide="slider" data-slider-min="0" data-slider-max="50" data-slider-step="1" data-slider-value="20">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label text-left">
+                                Layer Thickness
+                            </label>
+                            <div class="col-sm-9">
+                                <input id="sliderThickness" class=".slider" type="text" data-provide="slider" data-slider-min="0.05" data-slider-max="0.5" data-slider-step="0.01" data-slider-value="0.15">
                             </div>
                         </div>
                     </form>
- -->
                     <div class="well well-sm">
                         Source code is available at GitHub: <a href="https://github.com/keaukraine/webgl-fur" target="_blank">https://github.com/keaukraine/webgl-fur</a>
                     </div>
