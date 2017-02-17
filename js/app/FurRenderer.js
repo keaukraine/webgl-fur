@@ -113,6 +113,7 @@ define([
                     console.log('Loaded all assets');
                     $('#row-progress').hide();
                     $('.control-icon').show();
+                    this.onPresetLoaded && this.onPresetLoaded();
                 }
             }
 
@@ -127,7 +128,7 @@ define([
                 // this.textureChecker = UncompressedTextureLoader.load('data/textures/checker.png', boundUpdateCallback);
                 this.textureBackground = UncompressedTextureLoader.load('data/textures/bg-gradient.png', boundUpdateCallback);
 
-                this.currentPreset = FurPresets.current();
+                this.currentPreset = Object.assign({}, FurPresets.current());
 
                 this.textureFurDiffuse = UncompressedTextureLoader.load('data/textures/' + this.getCurrentPresetParameter('diffuseTexture'), boundUpdateCallback);
                 this.textureFurAlpha = UncompressedTextureLoader.load('data/textures/' + this.getCurrentPresetParameter('alphaTexture'), boundUpdateCallback);
@@ -210,19 +211,8 @@ define([
              * @param {unmber} a - position in [0...1] range
              */
             positionCamera(a) {
-                var x, y, z,
-                    sina, cosa;
-
-                sina = Math.sin(this.angleYaw / 360.0 * 6.2831852);
-                cosa = Math.cos(this.angleYaw / 360.0 * 6.2831852);
-                x = sina * 180.0;
-                y = cosa * 180.0;
-                z = 270.0;
-                x = 190;
-                y = 0;
-
                 MatrixUtils.mat4.identity(this.mVMatrix);
-                MatrixUtils.mat4.lookAt(this.mVMatrix, [x, y, z], [0, 0, 0], [0, 0, 1]);
+                MatrixUtils.mat4.lookAt(this.mVMatrix, [190, 0, 270], [0, 0, 0], [0, 0, 1]);
             }
 
             /**
@@ -254,7 +244,8 @@ define([
 
                 if (!this.loadingNextFur) {
                     if (this.textureFurDiffuseNext && this.textureFurAlphaNext) {
-                        this.currentPreset = FurPresets.current();
+                        this.currentPreset = Object.assign({}, FurPresets.current());
+                        this.onPresetLoaded && this.onPresetLoaded();
                         gl.deleteTexture(this.textureFurDiffuse);
                         gl.deleteTexture(this.textureFurAlpha);
                         this.textureFurDiffuse = this.textureFurDiffuseNext;

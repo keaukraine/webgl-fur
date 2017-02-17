@@ -92,6 +92,11 @@ define([
             $('#sliderThickness').on('change', function(e) {
                 renderer.thickness = e.value.newValue;
             });
+
+            renderer.onPresetLoaded = function() {
+                $('#sliderLayers').slider('setValue', renderer.layers);
+                $('#sliderThickness').slider('setValue', renderer.thickness);
+            };
         }
 
         $(function() {
