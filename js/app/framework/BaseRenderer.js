@@ -91,6 +91,11 @@ define([
         BaseRenderer.prototype.onBeforeInit = function() {}
 
         /**
+         * Called right after WebGL initialization
+         */
+        BaseRenderer.prototype.onAfterInit = function() {}
+
+        /**
          * Called on WebGL initialization error
          */
         BaseRenderer.prototype.onInitError = function() {}
@@ -180,6 +185,7 @@ define([
             window.gl = !!requestWebGL2 ? this.initGL2(this.canvas) : this.initGL(this.canvas);
 
             if (window.gl) {
+                this.onAfterInit();
                 this.initShaders();
                 this.loadData();
                 this.boundTick();

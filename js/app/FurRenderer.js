@@ -36,6 +36,7 @@ define([
                 this.angleYaw = 0; // camera rotation angle
                 this.lastTime = 0; // used for animating camera
                 this.furTimer = 0;
+                this.windTimer = 0;
                 this.loadingNextFur = false;
 
                 this.currentPreset = null;
@@ -55,7 +56,7 @@ define([
                 this.DISTANCE_TO_NEXT_CUBE = 200;
 
                 this.FUR_ANIMATION_SPEED = 1500.0;
-                this.SLIDE_DUDATION = 3000;
+                this.FUR_WIND_SPEED = 8310.0;
             }
 
             /**
@@ -64,6 +65,14 @@ define([
             resetLoaded() {
                 this.loaded = false;
                 this.loadedItemsCount = 0;
+            }
+
+            onAfterInit() {
+                super.onAfterInit();
+
+                if (!this.isWebGL2) {
+                    this.onInitError();
+                }
             }
 
             onBeforeInit() {
@@ -75,7 +84,7 @@ define([
             onInitError() {
                 super.onInitError();
 
-                $(canvas).hide();
+                $('#canvasGL').hide();
                 $('#alertError').show();
             }
 
@@ -192,7 +201,7 @@ define([
                 cosa = Math.cos(this.angleYaw / 360.0 * 6.2831852);
                 x = sina * 180.0;
                 y = cosa * 180.0;
-                z = 250.0;
+                z = 270.0;
                 x = 190;
                 y = 0;
 
@@ -272,8 +281,6 @@ define([
 
                 this.setTexture2D(0, texture, this.shaderDiffuse.sTexture);
 
-                // MatrixUtils.mat4.ortho(this.matOrtho, -1, 1, -1, 1, 2.0, 250);
-
                 gl.bindBuffer(gl.ARRAY_BUFFER, this.vignette.buffer);
 
                 gl.vertexAttribPointer(this.shaderDiffuse.rm_Vertex, 3, gl.FLOAT, false, this.TRIANGLE_VERTICES_DATA_STRIDE_BYTES, this.TRIANGLE_VERTICES_DATA_POS_OFFSET * this.FLOAT_SIZE_BYTES);
@@ -324,6 +331,9 @@ define([
             }
 
             drawFurVBOTranslatedRotatedScaledInstanced(preset, shader, model, tx, ty, tz, rx, ry, rz, sx, sy, sz) {
+                var a = Math.sin(this.windTimer * 6.2831852) / 2 + 0.5,
+                    scale = preset.waveScale * 0.4 + (a * preset.waveScale * 0.6);
+
                 model.bindBuffers();
 
                 gl.enableVertexAttribArray(shader.rm_Vertex);
@@ -342,7 +352,7 @@ define([
                 gl.uniform4f(shader.colorStart, preset.startColor[0], preset.startColor[1], preset.startColor[2], preset.startColor[3]);
                 gl.uniform4f(shader.colorEnd, preset.endColor[0], preset.endColor[1], preset.endColor[2], preset.endColor[3]);
                 gl.uniform1f(shader.time, this.furTimer);
-                gl.uniform1f(shader.waveScale, preset.waveScale);
+                gl.uniform1f(shader.waveScale, scale);
                 gl.drawElementsInstanced(gl.TRIANGLES, model.getNumIndices() * 3, gl.UNSIGNED_SHORT, 0, preset.layers);
             }
 
@@ -378,6 +388,9 @@ define([
 
                     this.furTimer += elapsed / this.FUR_ANIMATION_SPEED;
                     this.furTimer %= 1.0;
+
+                    this.windTimer += elapsed / this.FUR_WIND_SPEED;
+                    this.windTimer %= 1.0;
                 }
 
                 this.lastTime = timeNow;
