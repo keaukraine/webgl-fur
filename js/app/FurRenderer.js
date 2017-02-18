@@ -169,6 +169,10 @@ define([
                 this.currentPreset['thickness'] = value;
             }
 
+            get presetName() {
+                return this.currentPreset['name'];
+            }
+
             loadPreset(preset) {
                 var root = this,
                     counter = 0;

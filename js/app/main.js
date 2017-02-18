@@ -12,16 +12,11 @@ define([
         Slider,
         FullScreenUtils) {
 
-        var renderer;
-        var config = {
-            'model': '3', // 1, 2, 3
-            'normal': '1', // 1, 2, 3
-            'spherical': 'gold2', // 'bronze', 'gold2', 'silver'
-            'table': 'marble' // 'granite', 'marble', 'wood3'
-        };
+        var renderer,
+            timeoutHideName;
 
         /**
-         * Initialize renderer with current scene configuration
+         * Initialize renderer
          */
         function initRenderer() {
             var oldYaw = 0;
@@ -30,18 +25,10 @@ define([
 
             if (renderer) {
                 renderer.resetLoaded();
-                oldYaw = renderer.angleYaw;
             }
 
             renderer = new FurRenderer();
-
-            renderer.coinModelType = config['model'];
-            renderer.coinNormalType = config['normal'];
-            renderer.coinSphericalMap = config['spherical'];
-            renderer.tableTextureType = config['table'];
-
             renderer.init('canvasGL', true);
-            renderer.angleYaw = oldYaw;
         }
 
         function initUI() {
@@ -74,6 +61,7 @@ define([
 
                 $this.toggleClass('open');
                 $controls.toggle();
+                $('#presetName').hide();
             });
 
             $('#nextPreset').on('click', function(e) {
@@ -96,6 +84,14 @@ define([
             renderer.onPresetLoaded = function() {
                 $('#sliderLayers').slider('setValue', renderer.layers);
                 $('#sliderThickness').slider('setValue', renderer.thickness);
+
+                clearTimeout(timeoutHideName);
+                $('#presetName')
+                    .show()
+                    .text(renderer.presetName);
+                timeoutHideName = setTimeout(function() {
+                    $('#presetName').hide();
+                }, 3000);
             };
         }
 
