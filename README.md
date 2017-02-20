@@ -1,8 +1,9 @@
-# Fur WebGL 2.0 demo
+# WebGL 2.0 Fur demo
 
 Fur/grass WebGL 2.0 demo. Implemented using instanced rendering.
 
-Works in latest Chrome, Firefox, Safari and Edge.
+Works in latest Chrome and Firefox.
+Live demo is here - https://keaukraine.github.io/webgl-fur/
 
 #Used Libraries
 
