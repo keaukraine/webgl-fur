@@ -272,7 +272,7 @@ define([
                 gl.depthMask(true);
 
                 this.positionCamera(0.0);
-                this.setCameraFOV(0.6); // fixme multiplier should be 1.0
+                this.setCameraFOV(0.6);
 
                 this.drawCubeDiffuse(this.textureFurDiffuse, this.currentPreset);
 
