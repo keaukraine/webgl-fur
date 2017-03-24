@@ -52,7 +52,7 @@ define([
                 this.TRIANGLE_VERTICES_DATA_UV_OFFSET = 3;
                 this.FOV_LANDSCAPE = 25.0; // FOV for landscape
                 this.FOV_PORTRAIT = 40.0; // FOV for portrait
-                this.YAW_COEFF_NORMAL = 8000.0; // camera rotation speed
+                this.YAW_COEFF_NORMAL = 12000.0; // camera rotation speed
                 this.DISTANCE_TO_NEXT_CUBE = 200;
 
                 this.FUR_ANIMATION_SPEED = 1500.0;
