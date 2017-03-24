@@ -31,8 +31,8 @@ define(['framework/BaseShader'], function(BaseShader) {
                 '    float f = float(gl_InstanceID + 1) * layerThickness;\r\n' +
                 '    float layerCoeff = float(gl_InstanceID) / layersCount;\r\n' +
                 '    vec4 vertex = rm_Vertex + vec4(rm_Normal, 0.0) * vec4(f, f, f, 0.0);\r\n' +
-                '   float timePi2 = 0.2 * sin(time * PI2);\r\n' +
-                '   float waveScaleFinal = 1.5 * waveScale * layerCoeff * layerCoeff;\r\n' +
+                '   float timePi2 = time * PI2;\r\n' +
+                '   float waveScaleFinal = waveScale * layerCoeff * layerCoeff * layerCoeff;\r\n' +
                 '\r\n' +
                 '    vertex.x += sin(timePi2 + ((rm_Vertex.x+rm_Vertex.y+rm_Vertex.z) * RANDOM_COEFF_1)) * waveScaleFinal;\r\n' +
                 '    vertex.y += cos(timePi2 + ((rm_Vertex.x-rm_Vertex.y+rm_Vertex.z) * RANDOM_COEFF_2)) * waveScaleFinal;\r\n' +
