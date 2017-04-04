@@ -57,6 +57,7 @@ define([
 
                 this.FUR_ANIMATION_SPEED = 1500.0;
                 this.FUR_WIND_SPEED = 8310.0;
+                this.FUR_STIFFNESS = 2.75;
             }
 
             /**
@@ -364,6 +365,7 @@ define([
                 gl.uniform4f(shader.colorEnd, preset.endColor[0], preset.endColor[1], preset.endColor[2], preset.endColor[3]);
                 gl.uniform1f(shader.time, this.furTimer);
                 gl.uniform1f(shader.waveScale, scale);
+                gl.uniform1f(shader.stiffness, this.FUR_STIFFNESS);
                 gl.drawElementsInstanced(gl.TRIANGLES, model.getNumIndices() * 3, gl.UNSIGNED_SHORT, 0, preset.layers);
             }
 

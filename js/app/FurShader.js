@@ -13,6 +13,7 @@ define(['framework/BaseShader'], function(BaseShader) {
                 'uniform vec4 colorEnd;\r\n' +
                 'uniform float time;\r\n' +
                 'uniform float waveScale;\r\n' +
+                'uniform float stiffness;\r\n' +
                 '\r\n' +
                 'in vec4 rm_Vertex;\r\n' +
                 'in vec2 rm_TexCoord0;\r\n' +
@@ -25,7 +26,6 @@ define(['framework/BaseShader'], function(BaseShader) {
                 'const float RANDOM_COEFF_1 = 0.1376;\r\n' +
                 'const float RANDOM_COEFF_2 = 0.3726;\r\n' +
                 'const float RANDOM_COEFF_3 = 0.2546;\r\n' +
-                'const float WAVE_LAYER_COEFF = 3.0;\r\n' +
                 '\r\n' +
                 'void main( void )\r\n' +
                 '{\r\n' +
@@ -33,7 +33,7 @@ define(['framework/BaseShader'], function(BaseShader) {
                 '    float layerCoeff = float(gl_InstanceID) / layersCount;\r\n' +
                 '    vec4 vertex = rm_Vertex + vec4(rm_Normal, 0.0) * vec4(f, f, f, 0.0);\r\n' +
                 '   float timePi2 = time * PI2;\r\n' +
-                '   float waveScaleFinal = waveScale * pow(layerCoeff, WAVE_LAYER_COEFF);\r\n' +
+                '   float waveScaleFinal = waveScale * pow(layerCoeff, stiffness);\r\n' +
                 '\r\n' +
                 '    vertex.x += sin(timePi2 + ((rm_Vertex.x+rm_Vertex.y+rm_Vertex.z) * RANDOM_COEFF_1)) * waveScaleFinal;\r\n' +
                 '    vertex.y += cos(timePi2 + ((rm_Vertex.x-rm_Vertex.y+rm_Vertex.z) * RANDOM_COEFF_2)) * waveScaleFinal;\r\n' +
@@ -73,6 +73,7 @@ define(['framework/BaseShader'], function(BaseShader) {
             this.colorEnd = this.getUniform('colorEnd');
             this.time = this.getUniform('time');
             this.waveScale = this.getUniform('waveScale');
+            this.stiffness = this.getUniform('stiffness');
         }
     }
 
