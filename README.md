@@ -5,7 +5,7 @@ Fur/grass WebGL 2 demo. Implemented using instanced rendering.
 Works in latest Chrome and Firefox.
 Live demo is here - https://keaukraine.github.io/webgl-fur/
 
-#Used Libraries
+## Used Libraries
 
 * Twitter Bootstrap used under the MIT License https://github.com/twbs/bootstrap/blob/master/LICENSE
 * Material Icons by Google used under Apache License https://design.google.com/icons/
@@ -16,7 +16,7 @@ Live demo is here - https://keaukraine.github.io/webgl-fur/
 * WebGL initialization code is based on http://learningwebgl.com/ tutorials
 * Basic low-level WebGL framework - https://github.com/keaukraine/webgl-framework
 
-#License
+## License
 
 **The MIT License**
 
